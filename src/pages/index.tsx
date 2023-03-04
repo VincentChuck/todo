@@ -1,8 +1,11 @@
 import { type NextPage } from "next";
 import Head from "next/head";
 import { signIn, signOut, useSession } from "next-auth/react";
+import type { Session } from "next-auth";
+import DisplayTodos from "~/component/Todos";
 
 const Home: NextPage = () => {
+  const { data: sessionData } = useSession();
   return (
     <>
       <Head>
@@ -12,9 +15,8 @@ const Home: NextPage = () => {
       </Head>
       <main className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-b from-[#2e026d] to-[#15162c]">
         <div className="container flex flex-col items-center justify-center gap-12 px-4 py-16 ">
-          <div className="flex flex-col items-center gap-2">
-            <AuthShowcase />
-          </div>
+          {sessionData && <DisplayTodos />}
+          <AuthShowcase sessionData={sessionData} />
         </div>
       </main>
     </>
@@ -23,8 +25,9 @@ const Home: NextPage = () => {
 
 export default Home;
 
-const AuthShowcase: React.FC = () => {
-  const { data: sessionData } = useSession();
+const AuthShowcase: React.FC<{ sessionData: Session | null }> = ({
+  sessionData,
+}) => {
   return (
     <div className="flex flex-col items-center gap-2">
       <div className="flex flex-col items-center justify-center gap-4">
