@@ -2,7 +2,7 @@ import { type NextPage } from "next";
 import Head from "next/head";
 import { signIn, signOut, useSession } from "next-auth/react";
 import type { Session } from "next-auth";
-import DisplayTodos from "~/component/Todos";
+import Todos from "~/component/Todos";
 
 const Home: NextPage = () => {
   const { data: sessionData } = useSession();
@@ -15,7 +15,7 @@ const Home: NextPage = () => {
       </Head>
       <main className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-b from-[#2e026d] to-[#15162c]">
         <div className="container flex flex-col items-center justify-center gap-12 px-4 py-16 ">
-          {sessionData && <DisplayTodos />}
+          {sessionData && <Todos />}
           <AuthShowcase sessionData={sessionData} />
         </div>
       </main>

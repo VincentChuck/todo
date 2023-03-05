@@ -11,7 +11,7 @@ export default function Todo({ todo }: TodoProps) {
     <div className="flex items-center justify-between gap-2">
       <div className="flex items-center gap-2">
         <input
-          className="h-4 w-4 cursor-pointer rounded border border-gray-300 bg-gray-50  dark:border-gray-600 dark:bg-gray-700 dark:ring-offset-gray-800"
+          className="focus:ring-3 dark:ring-offset-gray-800: h-4 w-4 cursor-pointer rounded border  border-gray-300 bg-gray-50 focus:ring-blue-300 dark:border-gray-600 dark:bg-gray-700"
           type="checkbox"
           name="done"
           id={id}
