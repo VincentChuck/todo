@@ -1,3 +1,4 @@
+import toast from "react-hot-toast";
 import type { Todo } from "~/types";
 import { api } from "~/utils/api";
 
@@ -11,12 +12,60 @@ export default function Todo({ todo }: TodoProps) {
   const trpc = api.useContext();
 
   const { mutate: doneMutation } = api.todo.toggle.useMutation({
+    onMutate: async ({id, done}) => {
+      await trpc.todo.all.cancel();
+
+      const previousTodos = trpc.todo.all.getData();
+
+      trpc.todo.all.setData(undefined, (prev) => {
+        if (!prev) return previousTodos;
+        return prev.map(t => (
+          t.id === id 
+            ? { ...t, done } 
+            : t)
+        )
+      });
+
+      return { previousTodos };
+    },
+
+    onSuccess: (_todo, {done}) => {
+      if (done) {
+        toast.success("Todo completed 🎉")
+      }
+    },
+
+    onError: (_err, _todo, context) => {
+      toast.error(`An error occured when marking todo as ${done ? "done" : "undone"}`);
+      if (!context) return
+      trpc.todo.all.setData(undefined, () => context.previousTodos);
+    },
+
     onSettled: async () => {
       await trpc.todo.all.invalidate();
     },
   });
 
   const { mutate: deleteMutation } = api.todo.delete.useMutation({
+    onMutate: async (deleteId) => {
+      await trpc.todo.all.cancel();
+
+      const previousTodos = trpc.todo.all.getData();
+
+      trpc.todo.all.setData(undefined, (prev) => {
+        if (!prev) return previousTodos;
+        return prev.filter(t=>t.id!==deleteId)
+      });
+
+      return { previousTodos };
+    },
+
+    onError: (_err, _todo, context) => {
+      toast.error("An error occured when deleting todo");
+      if (!context) return
+      trpc.todo.all.setData(undefined, () => context.previousTodos);
+    },
+
     onSettled: async () => {
       await trpc.todo.all.invalidate();
     },

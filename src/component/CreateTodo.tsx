@@ -1,17 +1,43 @@
 import { useState } from "react";
 import toast from "react-hot-toast";
-import { todoInput } from "~/types";
+import { type Todo, todoInput } from "~/types";
 import { api } from "~/utils/api";
 
 export default function CreateTodo() {
   const [newTodo, setNewTodo] = useState("");
-  const trpc = api.useContext()
+  const trpc = api.useContext();
 
-  const {mutate} = api.todo.create.useMutation({
+  const { mutate } = api.todo.create.useMutation({
+    onMutate: async () => {
+      await trpc.todo.all.cancel();
+
+      const previousTodos = trpc.todo.all.getData();
+
+      trpc.todo.all.setData(undefined, (prev) => {
+        const optimisticTodo: Todo = {
+          id: "optimistic-todo-id",
+          text: newTodo,
+          done: false,
+        };
+        return [...(prev || []), optimisticTodo];
+      });
+
+      setNewTodo("");
+
+      return { previousTodos };
+    },
+
+    onError: (_err, newTodo, context) => {
+      toast.error("An error occured when creating todo");
+      setNewTodo(newTodo);
+      if (!context) return;
+      trpc.todo.all.setData(undefined, () => context.previousTodos);
+    },
+
     onSettled: async () => {
-      await trpc.todo.all.invalidate()
-    }
-  })
+      await trpc.todo.all.invalidate();
+    },
+  });
 
   function submitHandler(e: React.FormEvent<HTMLFormElement>): void {
     e.preventDefault();
