@@ -6,6 +6,7 @@
     "build": "next build",
     "dev": "next dev",
     "postinstall": "prisma generate",
+    "prisma:studio": "npx dotenv -e .env.development.local -- prisma studio",
     "lint": "next lint",
     "start": "next start"
   },
@@ -35,6 +36,7 @@
     "@typescript-eslint/eslint-plugin": "^5.53.0",
     "@typescript-eslint/parser": "^5.53.0",
     "autoprefixer": "^10.4.7",
+    "dotenv-cli": "^7.0.0",
     "eslint": "^8.34.0",
     "eslint-config-next": "^13.2.1",
     "postcss": "^8.4.14",
