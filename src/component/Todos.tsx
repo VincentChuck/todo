@@ -4,17 +4,35 @@ import CreateTodo from "~/component/CreateTodo";
 
 export default function Todos() {
   const { data: todos, isLoading, isError } = api.todo.all.useQuery();
-  if (isLoading) return <div>Loading todos 🔄</div>;
-  if (isError) return <div>Error fetching todos ❌</div>;
+  if (isLoading)
+    return (
+      <TodosWrapper>
+        <div>Loading todos 🔄</div>
+      </TodosWrapper>
+    );
+  if (isError)
+    return (
+      <TodosWrapper>
+        <div>Error fetching todos ❌</div>
+      </TodosWrapper>
+    );
 
   return (
-    <div className="gap-r grid grid-cols-1 md:gap-8">
+    <TodosWrapper>
+      {todos.length
+        ? todos.map((todo) => <Todo key={todo.id} todo={todo} />)
+        : "Create your first todo..."}
+      <CreateTodo />
+    </TodosWrapper>
+  );
+}
+
+function TodosWrapper(props: { children: React.ReactNode }) {
+  return (
+    <div className="flex flex-col ">
       <div className="flex flex-col gap-4 rounded-xl bg-white/10 p-4 text-white">
         <h3 className="text-xl font-bold">Todos</h3>
-        {todos.length
-          ? todos.map((todo) => <Todo key={todo.id} todo={todo} />)
-          : "Create your first todo..."}
-        <CreateTodo />
+        {props.children}
       </div>
     </div>
   );

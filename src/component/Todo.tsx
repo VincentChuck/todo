@@ -12,32 +12,30 @@ export default function Todo({ todo }: TodoProps) {
   const trpc = api.useContext();
 
   const { mutate: doneMutation } = api.todo.toggle.useMutation({
-    onMutate: async ({id, done}) => {
+    onMutate: async ({ id, done }) => {
       await trpc.todo.all.cancel();
 
       const previousTodos = trpc.todo.all.getData();
 
       trpc.todo.all.setData(undefined, (prev) => {
         if (!prev) return previousTodos;
-        return prev.map(t => (
-          t.id === id 
-            ? { ...t, done } 
-            : t)
-        )
+        return prev.map((t) => (t.id === id ? { ...t, done } : t));
       });
 
       return { previousTodos };
     },
 
-    onSuccess: (_todo, {done}) => {
+    onSuccess: (_todo, { done }) => {
       if (done) {
-        toast.success("Todo completed 🎉")
+        toast.success("Todo completed 🎉");
       }
     },
 
     onError: (_err, _todo, context) => {
-      toast.error(`An error occured when marking todo as ${done ? "done" : "undone"}`);
-      if (!context) return
+      toast.error(
+        `An error occured when marking todo as ${done ? "done" : "undone"}`
+      );
+      if (!context) return;
       trpc.todo.all.setData(undefined, () => context.previousTodos);
     },
 
@@ -54,7 +52,7 @@ export default function Todo({ todo }: TodoProps) {
 
       trpc.todo.all.setData(undefined, (prev) => {
         if (!prev) return previousTodos;
-        return prev.filter(t=>t.id!==deleteId)
+        return prev.filter((t) => t.id !== deleteId);
       });
 
       return { previousTodos };
@@ -62,7 +60,7 @@ export default function Todo({ todo }: TodoProps) {
 
     onError: (_err, _todo, context) => {
       toast.error("An error occured when deleting todo");
-      if (!context) return
+      if (!context) return;
       trpc.todo.all.setData(undefined, () => context.previousTodos);
     },
 
@@ -75,7 +73,7 @@ export default function Todo({ todo }: TodoProps) {
     <div className="flex items-center justify-between gap-2">
       <div className="flex items-center gap-2">
         <input
-          className="focus:ring-3 dark:ring-offset-gray-800: h-4 w-4 cursor-pointer rounded border  border-gray-300 bg-gray-50 focus:ring-blue-300 dark:border-gray-600 dark:bg-gray-700"
+          className="h-4 w-4 rounded ring-offset-gray-800 focus:ring-2 focus:ring-offset-2 dark:ring-offset-gray-800"
           type="checkbox"
           name="done"
           id={id}
