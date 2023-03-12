@@ -20,6 +20,5 @@ const config = {
     locales: ["en"],
     defaultLocale: "en",
   },
-  basePath: "/app/todo",
 };
 export default config;
