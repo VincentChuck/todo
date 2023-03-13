@@ -1,46 +1,46 @@
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/router";
-import { type SyntheticEvent, useRef, useState } from "react";
-import { toast } from "react-hot-toast";
+import { useForm, type SubmitHandler } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
 
 export default function SignIn() {
   const router = useRouter();
-  const loginEmail = useRef<HTMLInputElement>(null);
-  const [wait, setWait] = useState(false);
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+  } = useForm<ValidationSchema>({
+    resolver: zodResolver(validationSchema),
+  });
 
-  const handleSubmit = (event: SyntheticEvent) => {
-    event.preventDefault();
-    if (!loginEmail.current?.value) {
-      toast.error("Email is required");
-      return;
-    }
-    setWait(true);
-    signIn("email", {
+  const onSubmit: SubmitHandler<ValidationSchema> = async (data) => {
+    const status = await signIn("email", {
       redirect: false,
-      email: loginEmail.current?.value,
+      email: data.email,
       callbackUrl: "/",
-    })
-      .then((status) => {
-        if (status && status?.ok) {
-          void router.push(status?.url as string);
-        }
-      })
-      .catch(() => {
-        setWait(false);
-        toast.error("Something went wrong. Unable to login.");
-        return;
-      });
+    });
+
+    if (status && status.ok && status.url) void router.push(status.url);
   };
 
   return (
-    <form onSubmit={handleSubmit}>
-      <label>
-        Email address
-        <input type="email" id="email" name="email" ref={loginEmail} />
-      </label>
-      <button type="submit" disabled={wait}>
-        {wait ? `Logging in` : `Sign in with Email`}
-      </button>
+    <form onSubmit={handleSubmit(onSubmit)} className="mb-4 px-8 pt-6 pb-8">
+      <input type="email" {...register("email")} />
+      {errors.email && (
+        <p className="mt-2 text-xs italic text-red-500">
+          {errors.email?.message}
+        </p>
+      )}
+      <input type="submit" disabled={isSubmitting} />
     </form>
   );
 }
+const validationSchema = z.object({
+  email: z
+    .string()
+    .min(1, { message: "Email is required" })
+    .email({ message: "Email is invalid" }),
+});
+
+type ValidationSchema = z.infer<typeof validationSchema>;
