@@ -18,8 +18,16 @@ export default function CreateTodo() {
           id: "optimistic-todo-id",
           text: newTodo,
           done: false,
+          createdAt: new Date(),
         };
-        return [...(prev || []), optimisticTodo];
+        return [...(prev || []), optimisticTodo].sort((a, b) => {
+          if (a.done === b.done) {
+            return (
+              new Date(a.createdAt).valueOf() - new Date(b.createdAt).valueOf()
+            );
+          }
+          return a.done ? 1 : -1;
+        });
       });
 
       setNewTodo("");

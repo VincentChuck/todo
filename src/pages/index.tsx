@@ -1,5 +1,4 @@
 import { type NextPage } from "next";
-import Head from "next/head";
 import { signIn, signOut, useSession } from "next-auth/react";
 import type { Session } from "next-auth";
 import Todos from "~/component/Todos";
@@ -7,24 +6,12 @@ import Todos from "~/component/Todos";
 const Home: NextPage = () => {
   const { data: sessionData } = useSession();
   return (
-    <>
-      <Head>
-        <title>Todos</title>
-        <meta name="description" content="A beautiful todo app 🔥" />
-        <link rel="icon" href="/icons8-tasklist-color-96.png" />
-        {/*favicon from "https://icons8.com/icon/104234/tasklist"*/}
-      </Head>
-      <main className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-b from-[#2e026d] to-[#15162c]">
-        <div className="container flex flex-col items-center justify-center gap-12 px-4 py-16 ">
-          {sessionData && <Todos />}
-          <AuthShowcase sessionData={sessionData} />
-        </div>
-      </main>
-    </>
+    <div className="flex flex-col gap-8">
+      {sessionData && <Todos />}
+      <AuthShowcase sessionData={sessionData} />
+    </div>
   );
 };
-
-export default Home;
 
 const AuthShowcase: React.FC<{ sessionData: Session | null }> = ({
   sessionData,
@@ -45,3 +32,5 @@ const AuthShowcase: React.FC<{ sessionData: Session | null }> = ({
     </div>
   );
 };
+
+export default Home;

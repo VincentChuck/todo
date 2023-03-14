@@ -19,7 +19,17 @@ export default function Todo({ todo }: TodoProps) {
 
       trpc.todo.all.setData(undefined, (prev) => {
         if (!prev) return previousTodos;
-        return prev.map((t) => (t.id === id ? { ...t, done } : t));
+        return prev
+          .map((t) => (t.id === id ? { ...t, done } : t))
+          .sort((a, b) => {
+            if (a.done === b.done) {
+              return (
+                new Date(a.createdAt).valueOf() -
+                new Date(b.createdAt).valueOf()
+              );
+            }
+            return a.done ? 1 : -1;
+          });
       });
 
       return { previousTodos };

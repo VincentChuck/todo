@@ -10,7 +10,16 @@ export const todoRouter = createTRPCRouter({
         userId: ctx.session.user.id,
       },
     });
-    return todos.map(({ id, text, done }) => ({ id, text, done }));
+    return todos
+      .sort((a, b) => {
+        if (a.done === b.done) {
+          return (
+            new Date(a.createdAt).valueOf() - new Date(b.createdAt).valueOf()
+          );
+        }
+        return a.done ? 1 : -1;
+      })
+      .map(({ id, text, done, createdAt }) => ({ id, text, done, createdAt }));
   }),
   create: protectedProcedure
     .input(todoInput)
