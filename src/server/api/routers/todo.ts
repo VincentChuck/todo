@@ -11,6 +11,7 @@ export const todoRouter = createTRPCRouter({
       },
     });
     return todos
+      .map(({ id, text, done, createdAt }) => ({ id, text, done, createdAt }))
       .sort((a, b) => {
         if (a.done === b.done) {
           return (
@@ -18,8 +19,7 @@ export const todoRouter = createTRPCRouter({
           );
         }
         return a.done ? 1 : -1;
-      })
-      .map(({ id, text, done, createdAt }) => ({ id, text, done, createdAt }));
+      });
   }),
   create: protectedProcedure
     .input(todoInput)

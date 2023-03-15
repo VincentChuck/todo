@@ -12,13 +12,14 @@ export default function CreateTodo() {
       await trpc.todo.all.cancel();
 
       const previousTodos = trpc.todo.all.getData();
+      const Now = new Date();
 
       trpc.todo.all.setData(undefined, (prev) => {
         const optimisticTodo: Todo = {
-          id: "optimistic-todo-id",
+          id: `optimistic-todo-id-${newTodo}-${Now.toJSON()}`,
           text: newTodo,
           done: false,
-          createdAt: new Date(),
+          createdAt: Now,
         };
         return [...(prev || []), optimisticTodo].sort((a, b) => {
           if (a.done === b.done) {
