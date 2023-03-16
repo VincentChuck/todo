@@ -3,11 +3,14 @@ import {
   getServerSession,
   type NextAuthOptions,
   type DefaultSession,
+  type Profile,
 } from "next-auth";
 import EmailProvider from "next-auth/providers/email";
+import GoogleProvider from "next-auth/providers/google";
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
 import { env } from "~/env.mjs";
 import { prisma } from "~/server/db";
+import toast from "react-hot-toast";
 
 /**
  * Module augmentation for `next-auth` types. Allows us to add custom properties to the `session`
@@ -40,6 +43,20 @@ export const authOptions: NextAuthOptions = {
     signIn: "/signin",
   },
   callbacks: {
+    signIn({ account, profile }) {
+      if (account?.provider === "google") {
+        //Google returns a email_verified boolean property in the OAuth profile
+        const prof = profile as Profile & Record<"email_verified", boolean>;
+        if (!prof || !prof.email_verified) {
+          toast.error(
+            "Only Google accounts with email verified can be used to sign in"
+          );
+          return false;
+        }
+        return prof.email_verified;
+      }
+      return true;
+    },
     session({ session, user }) {
       if (session.user) {
         session.user.id = user.id;
@@ -52,7 +69,7 @@ export const authOptions: NextAuthOptions = {
   providers: [
     EmailProvider({
       server: env.EMAIL_SERVER,
-      from: process.env.EMAIL_FROM,
+      from: env.EMAIL_FROM,
 
       ...(process.env.NODE_ENV !== "production"
         ? {
@@ -61,6 +78,11 @@ export const authOptions: NextAuthOptions = {
             },
           }
         : {}),
+    }),
+    GoogleProvider({
+      clientId: process.env.GOOGLE_CLIENT_ID || "",
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET || "",
+      allowDangerousEmailAccountLinking: true,
     }),
     /**
      * ...add more providers here.

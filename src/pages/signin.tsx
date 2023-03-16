@@ -1,5 +1,6 @@
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/router";
+import Image from "next/image";
 import { useForm, type SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -24,13 +25,17 @@ export default function SignIn() {
     if (status && status.ok && status.url) void router.push(status.url);
   };
 
+  async function handleGoogleSignin() {
+    await signIn("google", { callbackUrl: "http://localhost:3000" });
+  }
+
   return (
     <div className="flex flex-col rounded-xl bg-white/10 p-4 text-white">
       <h3 className="text-xl font-bold">Sign-in</h3>
       <h2 className="text-sm text-gray-300">No password required!</h2>
       <form
         onSubmit={handleSubmit(onSubmit)}
-        className="mb-4 flex flex-col gap-4 pt-6 pb-8 "
+        className="flex flex-col items-center gap-6 pt-6 pb-8"
       >
         <div>
           {errors.email && (
@@ -62,6 +67,21 @@ export default function SignIn() {
             </button>
           </div>
         </div>
+        <button
+          type="button"
+          onClick={handleGoogleSignin}
+          className={`dark:focus:ring-[#4285F4]/55 mb-2 w-full items-center rounded-3xl bg-gray-100 px-5 py-2.5 text-center text-sm font-medium text-black hover:bg-gray-300 focus:outline-none focus:ring-4 focus:ring-[#4285F4]/50`}
+        >
+          <div className="m-auto flex w-full flex-row justify-center gap-4 text-center">
+            <Image
+              src={"/google.svg"}
+              width="20"
+              height={20}
+              alt={"Google icon"}
+            ></Image>
+            Sign In with Google
+          </div>
+        </button>
       </form>
     </div>
   );
