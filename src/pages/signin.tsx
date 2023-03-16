@@ -26,7 +26,7 @@ export default function SignIn() {
   };
 
   async function handleGoogleSignin() {
-    await signIn("google", { callbackUrl: "http://localhost:3000" });
+    await signIn("google", { callbackUrl: "/" });
   }
 
   return (
